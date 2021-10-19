@@ -29,7 +29,7 @@ public class FormController : MonoBehaviour
 	private int formStep = 0;
 	private int formStepDir = 1;
 	private float formUpdateTimer = 0f;
-	private float formUpdateDuration = 0.05f;
+	private float formUpdateDuration = 0f;
 
 
 	private float[,] randomSample;
