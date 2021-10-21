@@ -14,8 +14,8 @@ public class FormController : MonoBehaviour
 	private float[,] ceilingTargetHeight;
 	private GameObject[,] ceilingLight;
 	private float[,] ceilingTargetIntensity;
-	private const int size = 16;
-	private const float blockSize = 2;
+	private const int size = 32;
+	private const float blockSize = 1;
 	private const int height = 4;
 
 
@@ -45,7 +45,7 @@ public class FormController : MonoBehaviour
 		updateHeight();
 		updateLighting();
 		if (formUpdateTimer > formUpdateDuration) {
-			updateForm_noise();
+			updateForm_corridor();
 			formUpdateTimer = 0;
 		}
 
@@ -103,6 +103,33 @@ public class FormController : MonoBehaviour
 					) * 2;
 				groundTargetHeight[i, j] *= groundTargetHeight[i, j];
 				groundTargetHeight[i, j] = (groundTargetHeight[i, j] > height * 0.65f && (Mathf.Abs(i - size) > 2 || Mathf.Abs(j - size) > 2)) ? ceilingTargetHeight[i, j] : groundTargetHeight[i, j] - 0.2f;
+			}
+		}
+		formStepX++;
+		formStepY--;
+	}
+
+	void updateForm_corridor() {
+		for (int i = 0; i < size * 2; i++) {
+			for (int j = 0; j < size * 2; j++) {
+				if ((i >= size - 2 && i < size + 2) || (i >= size - 3 && i < size + 3 && j % 3 != 0)) {
+					float ceilingPicker = Mathf.PerlinNoise(
+							formSpeed * (float)(i + formStepX) / size * 2,
+							formSpeed * (float)(j + formStepY + 177) / size * 2
+						);
+					ceilingTargetHeight[i, j] = ceilingPicker * height + height;
+					ceilingTargetIntensity[i, j] = (ceilingPicker < 0.4f) ? (0.4f - ceilingPicker) / 0.4f : 0;
+					groundTargetHeight[i, j] =
+						Mathf.PerlinNoise(
+							formSpeed * (float)(i - formStepX + 123) / size,
+							formSpeed * (float)(j - formStepY) / size
+						) * 2;
+				}
+				else {
+					groundTargetHeight[i, j] = height * 2;
+					ceilingTargetHeight[i, j] = height * 2;
+					ceilingTargetIntensity[i, j] = 0;
+				}
 			}
 		}
 		formStepX++;

@@ -10,7 +10,7 @@ public class CameraController : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
 	{
-		transform.position = new Vector3(0, 2.5f, 0);
+		transform.position = new Vector3(0, 2.5f, -10f);
 	}
 
 	// Update is called once per frame
@@ -21,7 +21,7 @@ public class CameraController : MonoBehaviour
 		pitch = (pitch >= -90 ? pitch : -90);
 		yaw += Input.GetAxis("Mouse X") * sensitivity;
 		yaw = Mathf.Repeat(yaw, 360);
-		this.transform.rotation = Quaternion.Euler(pitch, yaw, 0);
+		// this.transform.rotation = Quaternion.Euler(pitch, yaw, 0);
 		if (Input.GetMouseButtonDown(0)) {
 			Cursor.lockState = CursorLockMode.Locked;
 		}
