@@ -14,6 +14,10 @@ public class CellGenerator : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-		
+		for (int i=0;i<25;i++) {
+			for (int j=0;j<25;j++) {
+				GameObject.Instantiate(cellPrefab, new Vector3(i, 0, j), Quaternion.identity);
+			}
+		}
 	}
 }

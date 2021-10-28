@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class FormController : MonoBehaviour
@@ -28,15 +29,29 @@ public class FormController : MonoBehaviour
 
 	private int formStepX = 0;
 	private int formStepY = 0;
+	private int formStep = 0;
 	private float formUpdateTimer = 0f;
 	private float formUpdateDuration = 1f;
 	private const float formLerpSpeed = 0.075f;
 	private const float formSpeed = 3f;
 
+	private float[] waveResults;
+	private float waveUpdateTimer = 0f;
+	private float waveUpdateDuration = 0.25f;
+
 	void Start()
 	{
 		generateRoom();
 		updateLighting();
+
+		waveResults = new float[100];
+
+		using (TextReader reader = File.OpenText("D:/code/The-Empty-Room/testData")) {
+			for (int i=0;i<100;i++) {
+				waveResults[i] = float.Parse(reader.ReadLine()) / 200f;
+			}
+		}
+
 	}
 
 	// Update is called once per frame
@@ -48,15 +63,26 @@ public class FormController : MonoBehaviour
 			updateForm_corridor();
 			formUpdateTimer = 0;
 		}
+		if (waveUpdateTimer > waveUpdateDuration) {
+			formStep++;
+			formStep %= 100;
+			waveUpdateTimer = 0;
+		}
 
 		lightingUpdateTimer += Time.deltaTime;
 		formUpdateTimer += Time.deltaTime;
+		waveUpdateTimer += Time.deltaTime;
 
 	}
 
 	void updateHeight() {
 		for (int i = 0; i < size * 2; i++) {
 			for (int j = 0; j < size * 2; j++) {
+				if ((i >= size - 2 && i < size + 2) || (i >= size - 3 && i < size + 3 && j % 3 != 0)) {
+					ceilingTargetHeight[i, j] = (ceilingTargetHeight[i, j] - height) * (1 + waveResults[formStep]) + height - 0.05f;
+					ceilingTargetIntensity[i, j] = ((ceilingTargetHeight[i, j] - height) / height < 0.4f) ? (0.4f - (ceilingTargetHeight[i, j] - height) / height) / 0.4f : 0;
+					groundTargetHeight[i, j] *= (1 - waveResults[formStep]);
+				}
 				ground[i,j].transform.localScale = new Vector3(blockSize, Mathf.Lerp(ground[i,j].transform.localScale.y, (groundTargetHeight[i, j] + size / 2) * 2, (groundTargetHeight[i, j] == ceilingTargetHeight[i, j] ? formLerpSpeed * 10f : formLerpSpeed)), blockSize);
 				ceiling[i,j].transform.localScale = new Vector3(blockSize, Mathf.Lerp(ceiling[i,j].transform.localScale.y, (height + size / 2 - ceilingTargetHeight[i, j]) * 2, formLerpSpeed), blockSize);
 			}
@@ -69,19 +95,21 @@ public class FormController : MonoBehaviour
 				float tInt = ceiling[i, j].GetComponent<MeshRenderer>().material.GetColor("_EmissionColor").r;
 				tInt = Mathf.Lerp(tInt, ceilingTargetIntensity[i, j], (ceilingTargetIntensity[i, j] > 0.2f ? lightingLerpSpeed * 10f : lightingLerpSpeed));
 				tInt = (tInt > 1 ? 1 : tInt);
-				if (tInt > 0.025f) {
-					if (i % 2 == 0 && j % 2 == 0) {
-						ceilingLight[i,j].SetActive(true);
-						ceilingLight[i,j].GetComponent<Light>().intensity = tInt * maxIntensity;
+				if ((i >= size - 2 && i < size + 2) || (i >= size - 3 && i < size + 3 && j % 3 != 0)) {
+					if (tInt > 0.025f) {
+						if (i % 3 == 0 && j % 3 == 0) {
+							ceilingLight[i,j].SetActive(true);
+							ceilingLight[i,j].GetComponent<Light>().intensity = tInt * maxIntensity;
+						}
+						else {
+							ceilingLight[i,j].SetActive(false);
+						}
+						ceiling[i, j].GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", new Color(tInt, tInt, tInt));
 					}
 					else {
 						ceilingLight[i,j].SetActive(false);
+						ceiling[i, j].GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", new Color(0, 0, 0));
 					}
-					ceiling[i, j].GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", new Color(tInt, tInt, tInt));
-				}
-				else {
-					ceilingLight[i,j].SetActive(false);
-					ceiling[i, j].GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", new Color(0, 0, 0));
 				}
 			}
 		}
@@ -103,6 +131,7 @@ public class FormController : MonoBehaviour
 					) * 2;
 				groundTargetHeight[i, j] *= groundTargetHeight[i, j];
 				groundTargetHeight[i, j] = (groundTargetHeight[i, j] > height * 0.65f && (Mathf.Abs(i - size) > 2 || Mathf.Abs(j - size) > 2)) ? ceilingTargetHeight[i, j] : groundTargetHeight[i, j] - 0.2f;
+
 			}
 		}
 		formStepX++;
@@ -118,7 +147,6 @@ public class FormController : MonoBehaviour
 							formSpeed * (float)(j + formStepY + 177) / size * 2
 						);
 					ceilingTargetHeight[i, j] = ceilingPicker * height + height;
-					ceilingTargetIntensity[i, j] = (ceilingPicker < 0.4f) ? (0.4f - ceilingPicker) / 0.4f : 0;
 					groundTargetHeight[i, j] =
 						Mathf.PerlinNoise(
 							formSpeed * (float)(i - formStepX + 123) / size,
@@ -126,7 +154,7 @@ public class FormController : MonoBehaviour
 						) * 2;
 				}
 				else {
-					groundTargetHeight[i, j] = height * 2;
+					groundTargetHeight[i, j] = height * 5;
 					ceilingTargetHeight[i, j] = height * 2;
 					ceilingTargetIntensity[i, j] = 0;
 				}
@@ -169,11 +197,13 @@ public class FormController : MonoBehaviour
 		ceilingLight = new GameObject[size * 2, size * 2];
 		for (int i = 0; i < size * 2; i++) {
 			for (int j = 0; j < size * 2; j++) {
-				ceilingLight[i,j] = (GameObject)Instantiate(lightPrefab, new Vector3(0, 0, 0), Quaternion.identity);
-				ceilingLight[i,j].SetActive(false);
-				ceilingLight[i,j].GetComponent<Light>().intensity = 0;
-				ceilingLight[i,j].transform.SetParent(ceiling[i,j].transform);
-				ceilingLight[i,j].transform.localPosition = new Vector3(0, -0.55f, 0);
+				if ((i >= size - 2 && i < size + 2) || (i >= size - 3 && i < size + 3 && j % 3 != 0)) {
+					ceilingLight[i,j] = (GameObject)Instantiate(lightPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+					ceilingLight[i,j].SetActive(false);
+					ceilingLight[i,j].GetComponent<Light>().intensity = 0;
+					ceilingLight[i,j].transform.SetParent(ceiling[i,j].transform);
+					ceilingLight[i,j].transform.localPosition = new Vector3(0, -0.55f, 0);
+				}
 			}
 		}
 	}
