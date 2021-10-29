@@ -108,5 +108,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35b8919a0dea8e7448d13f3ac997c20c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tex: {fileID: 2800000, guid: a727c3393c05f47b0bb1ba7cd5999683, type: 3}
+  texSide: {fileID: 2800000, guid: 1662161501ccd4a3697037df18b261aa, type: 3}
+  texTop: {fileID: 2800000, guid: 82f9fbb875e8448ba8e3e565d129e15a, type: 3}
   mat: {fileID: 2100000, guid: d14dfb3c95aee7b4f944b6697365688c, type: 2}

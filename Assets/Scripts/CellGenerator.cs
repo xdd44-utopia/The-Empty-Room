@@ -8,8 +8,8 @@ public class CellGenerator : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
 	{
-		for (int i=0;i<20;i++) {
-			for (int j=0;j<20;j++) {
+		for (int i=0;i<16;i++) {
+			for (int j=0;j<9;j++) {
 				GameObject.Instantiate(cellPrefab, new Vector3(0, i, j), Quaternion.identity);
 			}
 		}
