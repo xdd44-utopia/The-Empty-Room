@@ -29,12 +29,12 @@ public class BlockController : MonoBehaviour
 		Texture2D newTex = new Texture2D(size * 3, size * 3, TextureFormat.RGBA32, false);
 		for (int i=0;i<size;i++) {
 			for (int j=0;j<size;j++) {
-				newTex.SetPixel((size - i) + size, (size - j), tex.GetPixel((int)(transform.position.x * size + i) % texWidth, (int)(transform.position.z * size + j) % texHeight));
-				// newTex.SetPixel(i + size, j + size, tex.GetPixel((int)(transform.position.x * scale + i) % texWidth, (int)(transform.position.z * scale + j) % texHeight));
-				// newTex.SetPixel(i + size, j + 2 * size, tex.GetPixel((int)(transform.position.x * scale + i) % texWidth, (int)(transform.position.z * scale + j) % texHeight));
-				// newTex.SetPixel(i + 2 * size, j, tex.GetPixel((int)(transform.position.x * scale + i) % texWidth, (int)(transform.position.z * scale + j) % texHeight));
-				// newTex.SetPixel(i + 2 * size, j + size, tex.GetPixel((int)(transform.position.x * scale + i) % texWidth, (int)(transform.position.z * scale + j) % texHeight));
-				// newTex.SetPixel(i + 2 * size, j + 2 * size, tex.GetPixel((int)(transform.position.x * scale + i) % texWidth, (int)(transform.position.z * scale + j) % texHeight));
+				//newTex.SetPixel((size - i), j, tex.GetPixel((int)(transform.position.x * size + i) % texWidth, (int)(transform.position.y * size + j) % texHeight));
+				//newTex.SetPixel((size - i), j + size, tex.GetPixel((int)(transform.position.x * size + i) % texWidth, (int)(transform.position.z * size + j) % texHeight));
+				//newTex.SetPixel((size - i) + size, (size - j), tex.GetPixel((int)(transform.position.x * size + i) % texWidth, (int)(transform.position.z * size + j) % texHeight));
+				//newTex.SetPixel((size - i) + size, j + size, tex.GetPixel((int)(transform.position.z * size + i) % texWidth, (int)(transform.position.y * size + j) % texHeight));
+				//newTex.SetPixel((size - i) + 2 * size, (size - j), tex.GetPixel((int)(transform.position.x * size + i) % texWidth, (int)(transform.position.y * size + j) % texHeight));
+				newTex.SetPixel(i + 2 * size, j + size, tex.GetPixel((int)(transform.position.z * size + i) % texWidth, (int)(transform.position.y * size + j) % texHeight));
 			}
 		}
 		Color applyColor = tex.GetPixel((int)(transform.position.x * scale) % texWidth, (int)(transform.position.z * scale) % texHeight);
@@ -69,21 +69,21 @@ public class BlockController : MonoBehaviour
 		
 		// Bottom
 		uvs[12] = new Vector2(0.0f, 0.334f);
-		uvs[14] = new Vector2(0.333f, 0.334f);
-		uvs[15] = new Vector2(0.0f, 0.666f);
-		uvs[13] = new Vector2(0.333f, 0.666f);                
+		uvs[15] = new Vector2(0.333f, 0.334f);
+		uvs[13] = new Vector2(0.0f, 0.666f);
+		uvs[14] = new Vector2(0.333f, 0.666f);                
 		
 		// Left
 		uvs[16] = new Vector2(0.334f, 0.334f);
-		uvs[18] = new Vector2(0.666f, 0.334f);
-		uvs[19] = new Vector2(0.334f, 0.666f);
-		uvs[17] = new Vector2(0.666f, 0.666f);    
+		uvs[19] = new Vector2(0.666f, 0.334f);
+		uvs[17] = new Vector2(0.334f, 0.666f);
+		uvs[18] = new Vector2(0.666f, 0.666f);    
 		
 		// Right        
 		uvs[20] = new Vector2(0.667f, 0.334f);
-		uvs[22] = new Vector2(1.00f, 0.334f);
-		uvs[23] = new Vector2(0.667f, 0.666f);
-		uvs[21] = new Vector2(1.0f, 0.666f);    
+		uvs[23] = new Vector2(1.00f, 0.334f);
+		uvs[21] = new Vector2(0.667f, 0.666f);
+		uvs[22] = new Vector2(1.0f, 0.666f);    
 		
 		mesh.uv = uvs;
 	}
